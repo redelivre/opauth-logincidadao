@@ -154,4 +154,60 @@ class LoginCidadaoStrategy extends OpauthStrategy {
 			$this->errorCallback($error);
 		}
 	}
+	
+	/**
+	 * Simple server-side HTTP request with file_get_contents
+	 * Provides basic HTTP calls.
+	 * See serverGet() and serverPost() for wrapper functions of httpRequest()
+	 *
+	 * Notes:
+	 * Reluctant to use any more advanced transport like cURL for the time being to not
+	 *     having to set cURL as being a requirement.
+	 * Strategy is to provide own HTTP transport handler if requiring more advanced support.
+	 *
+	 * @param string $url Full URL to load
+	 * @param array $options Stream context options (http://php.net/stream-context-create)
+	 * @param string $responseHeaders Response headers after HTTP call. Useful for error debugging.
+	 * @return string Content resulted from request, without headers
+	 */
+	public static function httpRequest($url, $options = null, &$responseHeaders = null)
+	{
+		$context = null;
+		if (!empty($options) && is_array($options)) {
+			if (empty($options['http']['header'])) {
+				$options['http']['header'] = "User-Agent: opauth";
+			} else {
+				$options['http']['header'] .= "\r\nUser-Agent: opauth";
+			}
+		} else {
+			$options = array('http' => array('header' => 'User-Agent: opauth'));
+		}
+		$context = stream_context_create($options);
+	
+		//$content = file_get_contents($url, false, $context);
+		//$responseHeaders = implode("\r\n", $http_response_header);
+	
+		$reqString=$url;
+	
+	
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $reqString);
+		curl_setopt($ch, CURLOPT_HEADER, 1);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		if(isset($options['http']['method']) && $options['http']['method'] == "POST" )
+		{
+			curl_setopt($ch, CURLOPT_POST, 1);
+		}
+		if(isset($options['http']['content']))
+		{
+			$dataString = $options['http']['content'];
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $dataString);
+		}
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		$content = curl_exec($ch);
+		curl_close($ch);
+	
+		return $content;
+	}
+	
 }
