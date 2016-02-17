@@ -19,7 +19,7 @@ class LoginCidadaoStrategy extends OpauthStrategy {
 	/**
 	 * Compulsory config keys, listed as unassociative arrays
 	 */
-	public $expects = array('client_id', 'client_secret');
+	public $expects = array('client_id', 'client_secret', 'url_base');
 	
 	/**
 	 * Optional config keys, without predefining any default values.
@@ -31,16 +31,22 @@ class LoginCidadaoStrategy extends OpauthStrategy {
 	 * eg. array('scope' => 'email');
 	 */
 	public $defaults = array(
-		'redirect_uri' => '{complete_url_to_strategy}oauth2callback',
+		'redirect_uri' => '{path_to_strategy}oauth2callback',
 		'scope' => 'email public_profile',
 		'response_type' => 'code'
 	);
+	
+	public function __construct($strategy, $env)
+	{
+		parent::__construct($strategy, $env);
+		$this->strategy['redirect_uri'] = get_site_url().$this->strategy['redirect_uri'];
+	}
 	
 	/**
 	 * Auth request
 	 */
 	public function request() {
-		$url = 'http://minha.redelivre.ethymos.com.br/wp-content/themes/login-cidadao/web/app_dev.php/oauth/v2/auth';
+		$url = $this->strategy['url_base'].'/web/app_dev.php/oauth/v2/auth';
 		$params = array(
 			'client_id' => $this->strategy['client_id'],
 			'redirect_uri' => $this->strategy['redirect_uri'],
@@ -59,7 +65,7 @@ class LoginCidadaoStrategy extends OpauthStrategy {
 	public function oauth2callback() {
 		if (array_key_exists('code', $_GET) && !empty($_GET['code'])) {
 			$code = $_GET['code'];
-			$url = 'http://minha.redelivre.ethymos.com.br/wp-content/themes/login-cidadao/web/app_dev.php/oauth/v2/token';
+			$url = $this->strategy['url_base'].'/web/app_dev.php/oauth/v2/token';
 			
 			$params = array(
 				'code' => $code,
@@ -137,7 +143,7 @@ class LoginCidadaoStrategy extends OpauthStrategy {
 	 * @return array Parsed JSON results
 	 */
 	private function user($access_token) {
-		$user = $this->serverGet('http://minha.redelivre.ethymos.com.br/wp-content/themes/login-cidadao/web/app_dev.php/api/v1/person.json', array('access_token' => $access_token), null, $headers);
+		$user = $this->serverGet( $this->strategy['url_base'].'/web/app_dev.php/api/v1/person.json', array('access_token' => $access_token), null, $headers);
 		if (!empty($user)) {
 			return $this->recursiveGetObjectVars(json_decode($user));
 		}
