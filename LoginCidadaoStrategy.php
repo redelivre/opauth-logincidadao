@@ -46,8 +46,10 @@ class LoginCidadaoStrategy extends OpauthStrategy
 	public function __construct($strategy, $env)
 	{
 		parent::__construct($strategy, $env);
-		//$this->strategy['redirect_uri'] = get_site_url().$this->strategy['redirect_uri']; // Login Cidadao validate url, so no child blog url here 
-		$this->strategy['redirect_uri'] = network_site_url().$this->strategy['redirect_uri'];
+		//$this->strategy['redirect_uri'] = get_site_url().$this->strategy['redirect_uri']; // Login Cidadao validate url, so no child blog url here
+		$redirect_uri = network_site_url();
+		$redirect_uri = rtrim($redirect_uri,"/");
+		$this->strategy['redirect_uri'] = $redirect_uri.$this->strategy['redirect_uri'];
 	}
 	
 	/**
