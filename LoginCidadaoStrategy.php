@@ -97,7 +97,7 @@ class LoginCidadaoStrategy extends OpauthStrategy
 			);
 			if (!empty($this->strategy['state'])) $params['state'] = $this->strategy['state'];
 			
-			$response = $this->serverPost($url, $params, null, $headers);
+			$response = static::serverPost($url, $params, null, $headers);
 			
 			$results = json_decode($response);
 			
@@ -252,6 +252,33 @@ class LoginCidadaoStrategy extends OpauthStrategy
 		curl_close($ch);
 	
 		return $content;
+	}
+	
+	/**
+	 * Basic server-side HTTP POST request via self::httpRequest(), wrapper of file_get_contents
+	 *
+	 * @param string $url Destination URL
+	 * @param array $data Data to be POSTed
+	 * @param array $options Additional stream context options, if any
+	 * @param string $responseHeaders Response headers after HTTP call. Useful for error debugging.
+	 * @return string Content resulted from request, without headers
+	 */
+	public static function serverPost($url, $data, $options = array(), &$responseHeaders = null) {
+		if (!is_array($options)) {
+			$options = array();
+		}
+	
+		$query = http_build_query($data, '', '&');
+	
+		$stream = array('http' => array(
+				'method' => 'POST',
+				'header' => "Content-type: application/x-www-form-urlencoded",
+				'content' => $query
+		));
+	
+		$stream = array_merge_recursive($options, $stream);
+	
+		return static::httpRequest($url, $stream, $responseHeaders);
 	}
 	
 }
