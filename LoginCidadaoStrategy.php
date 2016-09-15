@@ -249,11 +249,13 @@ class LoginCidadaoStrategy extends OpauthStrategy
 		}
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		$content = curl_exec($ch);
-		curl_close($ch);
 		if($content === false)
 		{
-			throw new Exception(curl_error($ch));
+			$error = curl_error($ch);
+			curl_close($ch);
+			throw new Exception($error);
 		}
+		curl_close($ch);
 		return $content;
 	}
 	
