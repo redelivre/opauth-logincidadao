@@ -252,7 +252,7 @@ class LoginCidadaoStrategy extends OpauthStrategy
 		curl_close($ch);
 		if($content === false)
 		{
-			throw curl_error($ch);
+			throw new Exception(curl_error($ch));
 		}
 		return $content;
 	}
