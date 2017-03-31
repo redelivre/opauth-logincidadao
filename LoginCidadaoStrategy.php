@@ -33,7 +33,7 @@ class LoginCidadaoStrategy extends OpauthStrategy
 	 */
 	public $defaults = array(
 		'redirect_uri' => '{path_to_strategy}oauth2callback',
-		'scope' => 'email public_profile logout',
+		'scope' => 'email public_profile logout cpf state',
 		'response_type' => 'code'
 	);
 	
@@ -109,7 +109,8 @@ class LoginCidadaoStrategy extends OpauthStrategy
 					'uid' => $user['id'],
 					'info' => array(
 						'email' => $user['email'],
-						'profile_picture_url' => $user['profile_picture_url']
+						'profile_picture_url' => $user['profile_picture_url'],
+						'user'  => $user
 					),
 					'credentials' => array(
 						'token' => $results->access_token
