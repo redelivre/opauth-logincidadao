@@ -33,7 +33,7 @@ class LoginCidadaoStrategy extends OpauthStrategy
 	 */
 	public $defaults = array(
 		'redirect_uri' => '{path_to_strategy}oauth2callback',
-		'scope' => 'email public_profile logout cpf state',
+		'scope' => 'email public_profile logout cpf state city mobile',
 		'response_type' => 'code'
 	);
 	
